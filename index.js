@@ -32,7 +32,8 @@ app.post("/cafes", (req, res) => {
 app.put("/cafes/:id", (req, res) => {
     const cafe = req.body;
     const { id } = req.params;
-    if (id !== cafe.id)
+
+    if (Number(id) !== cafe.id)
         return res
             .status(400)
             .send({

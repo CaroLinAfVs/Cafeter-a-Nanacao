@@ -2,35 +2,39 @@ const request = require("supertest");
 const server = require("../index");
 
 describe("Operaciones CRUD de cafes", () => {
-    it("Obteniendo un 200", async () => {
-        const response = await request(server).get("/cafes").send();
-        const status = response.statusCode;
-        expect(status).toBe(200);
+    it("Obteniendo un 200 y tener por lo menos 1 objeto", async () => {
+        const { body, statusCode } = await request(server).get("/cafes").send();
+        expect(statusCode).toBe(200);
+        expect(body.length).toBeGreaterThan(0)
     });
-    it("Obteniendo un producto", async () => {
-        const { body } = await request(server).get("/cafes/1").send();
-        const producto = body;
-        expect(producto).toBeInstanceOf(Object);
-    });
-    it("Eliminando un producto", async () => {
+    it("Eliminando un producto no existente", async () => {
         const jwt = "token";
-        const idDeProductoAEliminar = 5
-        const productos = { body: productos }
-        productos = await request(server)
+        const idDeProductoAEliminar = 100
+
+        const { statusCode } = await request(server)
             .delete(`/cafes/${idDeProductoAEliminar}`)
             .set("Authorization", jwt)
             .send();
-        const ids = productos.map(p => p.id)
-        expect(ids).not.toContain(idDeProductoAEliminar);
+
+        expect(statusCode).toBe(404)
     });
-    it("Enviando un nuevo producto", async () => {
-        const id = Math.floor(Math.random() * 999);
-        const producto = { id, nombre: "Nuevo producto" };
-        const productos = { body: productos }
-        productos = await request(server)
+    it("agregando un nuevo producto", async () => {
+        const id = Math.floor(Math.random() * 1);
+        const producto = { id, nombre: "" }
+
+        const { body, statusCode } = await request(server)
             .post("/cafes")
             .send(producto);
-        expect(productos).toContainEqual(producto);
-        expect(productos.statusCode).toBe(201)
+
+        expect(body).toContainEqual(producto);
+        expect(statusCode).toBe(201)
+    });
+    it("actualizando productos", async () => {
+
+        const { body, statusCode } = await request(server)
+            .put("/cafes/3")
+            .send({ id: 5 });
+
+        expect(statusCode).toBe(400)
     });
 });
